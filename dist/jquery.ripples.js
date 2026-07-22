@@ -26,6 +26,13 @@
   const STYLE_ID = 'ripples-style';
 
   const VIDEO_EXTENSIONS = /\.(mp4|m4v|webm|ogv|mov)(\?|#|$)/i;
+
+  // Elements that cannot render appended children, so the effect can never show up
+  // on them. Attaching to one of these is always a mistake worth reporting.
+  const VOID_OR_REPLACED = new Set([
+    'VIDEO', 'IMG', 'CANVAS', 'IFRAME', 'OBJECT', 'EMBED', 'SVG',
+    'INPUT', 'TEXTAREA', 'SELECT', 'BR', 'HR', 'AREA', 'SOURCE', 'TRACK'
+  ]);
   const URL_LIKE = /^(https?:)?\/\/|^data:|^blob:|^\/|^\.{0,2}\//i;
 
   const DEFAULTS = {
@@ -462,6 +469,22 @@ void main() {
         throw new Error(
           'Ripples: this browser does not support WebGL float textures ' +
           '(WebGL 2, or WebGL 1 with OES_texture_float and render-to-float support).'
+        )
+      }
+
+      if (!el || el.nodeType !== 1) {
+        throw new Error('Ripples: expected an element to attach to, got ' + el + '.')
+      }
+
+      // A replaced element cannot display child nodes, so the canvas we append
+      // would silently never be rendered — inside <video>/<object> it even becomes
+      // fallback content. Fail loudly instead of doing nothing.
+      if (VOID_OR_REPLACED.has(el.tagName)) {
+        throw new Error(
+          'Ripples: cannot attach to <' + el.tagName.toLowerCase() + '> — it cannot display the ' +
+          'canvas the effect draws on. Attach to a container element instead and the ' +
+          '<' + el.tagName.toLowerCase() + '> inside it will be picked up as the source automatically, ' +
+          'e.g. Ripples.attach(el.parentElement).'
         )
       }
 
