@@ -4,10 +4,10 @@
  * @author sirxemic / https://sirxemic.com/
  */
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('jquery')) :
-  typeof define === 'function' && define.amd ? define(['jquery'], factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Ripples = factory(global.jQuery));
-})(this, (function ($) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+  typeof define === 'function' && define.amd ? define(factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Ripples = factory());
+})(this, (function () { 'use strict';
 
   /**
    * Ripples — WebGL water ripple effect.
@@ -1677,18 +1677,20 @@ void main() {
   }
 
   /**
-   * jQuery bundle entry point: registers `$.fn.ripples` and exposes the core class.
+   * Standalone bundle entry point — no jQuery required.
    *
-   * `Ripples.attach`, `Ripples.autoInit`, `Ripples.get` and `Ripples.supported` are
-   * available as statics on the default export.
+   * If jQuery happens to be on the page, the `$.fn.ripples` plugin is registered
+   * too, so this build is a drop-in replacement for the jQuery one.
    */
 
 
-  registerJQueryPlugin($);
+  if (typeof window !== 'undefined' && window.jQuery) {
+    registerJQueryPlugin(window.jQuery);
+  }
 
   Ripples.registerJQueryPlugin = registerJQueryPlugin;
 
   return Ripples;
 
 }));
-//# sourceMappingURL=jquery.ripples.js.map
+//# sourceMappingURL=ripples.js.map

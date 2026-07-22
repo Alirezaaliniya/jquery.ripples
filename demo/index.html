@@ -1,185 +1,283 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>jQuery WebGL Ripples</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WebGL Ripples — images, videos and any element</title>
 <style>
-* { margin: 0; padding: 0; }
-html {
-	height: 100%;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { height: 100%; }
+
 body {
 	color: #fff;
-	font-size: 16px;
-	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font: 16px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif;
 	background-image: url(img/bg2.jpg);
 	background-size: cover;
 	background-position: 50% 0;
-	height: 100%;
+	background-attachment: fixed;
+	min-height: 100%;
 	text-align: center;
-}
-
-body:before {
-	content: '';
-	display: inline-block;
-	vertical-align: middle;
-	height: 100%;
+	padding: 40px 20px 80px;
 }
 
 main {
 	display: inline-block;
-	vertical-align: middle;
+	text-align: left;
 	background: url(img/bg.jpg);
-	padding:  100px;
-	max-width: 500px;
+	padding: 60px;
+	max-width: 640px;
+	width: 100%;
 	text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 	box-shadow: 0 5px 15px rgba(0,0,0,0.5);
 }
 
-h1 {
-	font-size: 32px;
-}
-h2 {
-	font-size: 18px;
-	margin-top: 6px;
-}
-p {
-	text-align: left;
-	margin-top: 20px;
-}
-a {
-	color: #ff6800;
-}
+h1 { font-size: 32px; }
+h2 { font-size: 18px; margin-top: 6px; font-weight: normal; opacity: 0.85; }
+h3 { font-size: 20px; margin: 40px 0 10px; }
+p { margin-top: 16px; }
+a { color: #ff6800; }
+
 pre {
-	text-align: left;
+	margin-top: 16px;
+	padding: 14px 16px;
+	background: rgba(0,0,0,0.55);
+	overflow-x: auto;
+	border-radius: 4px;
+	font-size: 13px;
+	line-height: 1.6;
+}
+code { font-family: Menlo, Consolas, monospace; }
+
+/* --- the demo regions ------------------------------------------------ */
+
+.demo-region {
+	position: relative;
+	height: 260px;
 	margin-top: 20px;
+	border-radius: 6px;
+	overflow: hidden;
+	box-shadow: 0 4px 14px rgba(0,0,0,0.45);
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
-.error {
-	display: none;
-	position: fixed;
-	bottom: 0;
-	left: 0;
-	background: #000;
-	color: #f00;
-	padding: 5px;
-	max-width: 50%;
+/* The media inside a region: the plugin samples it and hides the original. */
+.demo-region > video,
+.demo-region > img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
 }
+
+.demo-region .caption {
+	position: absolute;
+	left: 0; right: 0; bottom: 0;
+	padding: 14px 18px;
+	background: linear-gradient(transparent, rgba(0,0,0,0.75));
+	font-size: 14px;
+	pointer-events: none;
+}
+
+.controls { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 8px; }
 
 button {
-	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-	padding: 0 0.8em;
-	line-height: 2em;
+	font: inherit;
+	font-size: 14px;
+	padding: 0 1em;
+	line-height: 2.4em;
 	border: none;
 	background: #666;
 	color: #fff;
 	text-shadow: 0 -1px 0 rgba(0,0,0,0.5);
 	border-radius: 4px;
 	cursor: pointer;
-	margin-bottom: 0.5em;
 	box-shadow: 0 2px 3px rgba(0,0,0,0.5);
 }
+button:hover { background: #888; }
 
-button:hover {
-	background: #888;
-}
-
-code { font-size: 0.8em; display: inline; }
-
-.disable {
+.error {
+	display: none;
 	position: fixed;
-	bottom: 0;
-	right: 0;
+	bottom: 0; left: 0;
+	background: #000;
+	color: #f66;
+	padding: 8px 12px;
+	max-width: 60%;
+	font-size: 13px;
+	z-index: 10;
 }
 
-.code-string { color:#ec7600 }
-.code-cbracket { font-weight:bold }
-.code-number { color:#ffcd22 }
+.disable { position: fixed; bottom: 10px; right: 10px; z-index: 10; }
 
+.code-string { color: #ec7600; }
+.code-key { color: #9cdcfe; }
+.code-number { color: #ffcd22; }
+.code-comment { color: #8a8a8a; }
 </style>
 </head>
 <body>
 
 <main>
 	<header>
-		<h1>jQuery Ripples</h1>
-		<h2>A simple WebGL-based ripple effect.</h2>
+		<h1>WebGL Ripples</h1>
+		<h2>A water ripple effect for background images, <em>images</em> and <em>videos</em>.</h2>
 	</header>
-	<p>Background images are often boring. Use this effect to make your static CSS background images more interactive!</p>
-	<p>It's as easy as:</p>
 
-	<pre><code>
-$(<span class="code-string">'body'</span>).ripples(<span class="code-cbracket">{</span>
-	resolution: <span class="code-number">512</span>,
-	dropRadius: <span class="code-number">20</span>,
-	perturbance: <span class="code-number">0.04</span>,
-<span class="code-cbracket">}</span>);
-	</code></pre>
+	<p>Give any region a class, drop an image or a video inside it, and the effect takes
+	over the pixels — no need to duplicate the URL in your JavaScript.</p>
 
-	<p>You can add drops programmatically by doing <code>$(<span class="code-string">'body'</span>).ripples(<span class="code-string">"drop"</span>, x, y, radius, strength)</code></p>
+	<h3>1. A video region</h3>
+	<p>The plugin finds the <code>&lt;video&gt;</code> inside the container, uploads every
+	decoded frame to the GPU and ripples it. Move your pointer over it.</p>
 
-	<p>And you can change its state:<br>
-	<button class="js-ripples-pause" type="button">
-		<code>$(<span class="code-string">'body'</span>).ripples(<span class="code-string">"pause"</span>)</code>
-	</button>
+	<div class="demo-region" id="video-region">
+		<video src="video/loop.mp4" autoplay muted loop playsinline
+		       poster="img/bg.jpg" preload="auto"></video>
+		<span class="caption">A <code>&lt;video&gt;</code> already in the markup — picked up automatically.</span>
+	</div>
 
-	<button class="js-ripples-play" type="button">
-		<code>$(<span class="code-string">'body'</span>).ripples(<span class="code-string">"play"</span>)</code>
-	</button>
-	</p>
+<pre><code><span class="code-comment">&lt;!-- markup --&gt;</span>
+&lt;div class=<span class="code-string">"demo-region"</span>&gt;
+  &lt;video src=<span class="code-string">"loop.mp4"</span> autoplay muted loop playsinline&gt;&lt;/video&gt;
+&lt;/div&gt;
 
-	<p>Download or fork this effect at <a href="//github.com/sirxemic/jquery.ripples/">Github</a>.</p>
+<span class="code-comment">// script</span>
+Ripples.attach(<span class="code-string">'.demo-region'</span>);        <span class="code-comment">// or $('.demo-region').ripples()</span></code></pre>
+
+	<h3>2. Zero JavaScript — just an attribute</h3>
+	<p>Anything carrying <code>data-ripples</code> is initialised automatically on page load.
+	Options come from <code>data-ripples-*</code> attributes.</p>
+
+	<div class="demo-region"
+	     data-ripples
+	     data-ripples-resolution="256"
+	     data-ripples-drop-radius="14"
+	     data-ripples-perturbance="0.05">
+		<img src="img/bg.jpg" alt="">
+		<span class="caption">An <code>&lt;img&gt;</code> with <code>data-ripples</code> — no script at all.</span>
+	</div>
+
+<pre><code>&lt;div <span class="code-key">data-ripples</span>
+     <span class="code-key">data-ripples-resolution</span>=<span class="code-string">"256"</span>
+     <span class="code-key">data-ripples-drop-radius</span>=<span class="code-string">"14"</span>
+     <span class="code-key">data-ripples-perturbance</span>=<span class="code-string">"0.05"</span>&gt;
+  &lt;img src=<span class="code-string">"photo.jpg"</span>&gt;
+&lt;/div&gt;</code></pre>
+
+	<h3>3. A video by URL, without any markup</h3>
+	<p>Pass the URL and the plugin creates (and hides) the video element for you.
+	This one is non-interactive and fed by automatic drops.</p>
+
+	<div class="demo-region" id="url-region">
+		<span class="caption">Source given as <code>{ source: 'video/loop.webm' }</code>.</span>
+	</div>
+
+<pre><code>Ripples.attach(<span class="code-string">'#url-region'</span>, <span class="code-key">{</span>
+  source: <span class="code-string">'video/loop.webm'</span>,
+  fit: <span class="code-string">'cover'</span>,
+  interactive: <span class="code-number">false</span>
+<span class="code-key">}</span>);</code></pre>
+
+	<h3>4. The classic: a CSS background</h3>
+	<p>The original behaviour is untouched — this page's <code>&lt;body&gt;</code> and this
+	panel both use their <code>background-image</code>, honouring
+	<code>background-size</code>, <code>-position</code> and <code>-attachment</code>.</p>
+
+	<div class="controls">
+		<button class="js-pause" type="button">pause</button>
+		<button class="js-play" type="button">play</button>
+		<button class="js-drop" type="button">random drop</button>
+		<button class="js-swap" type="button">swap video ↔ image</button>
+	</div>
+
+	<p>Read the full option list on <a href="//github.com/sirxemic/jquery.ripples/">GitHub</a>.</p>
 </main>
 
-<button class="js-ripples-disable disable">
-	Click here if your PC can't handle this effect very well
-	(<code>$(<span class="code-string">'body'</span>).ripples(<span class="code-string">"destroy"</span>)</code>)
-</button>
-
+<button class="js-disable disable" type="button">Destroy every effect</button>
 <div class="error"></div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="../dist/jquery.ripples.js"></script>
 <script>
-$(document).ready(function() {
-	try {
-		$('body').ripples({
-			resolution: 512,
-			dropRadius: 20, //px
-			perturbance: 0.04,
-		});
-		$('main').ripples({
-			resolution: 128,
-			dropRadius: 10, //px
-			perturbance: 0.04,
-			interactive: false
-		});
-	}
-	catch (e) {
-		$('.error').show().text(e);
+$(function () {
+	if (!Ripples.supported) {
+		$('.error').show().text('This browser cannot run the effect (no WebGL float textures).');
+		return;
 	}
 
-	$('.js-ripples-disable').on('click', function() {
-		$('body, main').ripples('destroy');
+	try {
+		// The classic CSS-background usage.
+		$('body').ripples({ resolution: 512, dropRadius: 20, perturbance: 0.04 });
+		$('main').ripples({ resolution: 256, dropRadius: 10, perturbance: 0.04, interactive: false });
+
+		// A region whose <video> child is detected automatically.
+		Ripples.attach('#video-region', { resolution: 256, dropRadius: 18, perturbance: 0.045 });
+
+		// A region fed by a URL — the plugin builds the hidden <video> itself.
+		Ripples.attach('#url-region', {
+			source: 'video/loop.webm',
+			fit: 'cover',
+			interactive: false,
+			resolution: 256,
+			perturbance: 0.05
+		});
+
+		// (The data-ripples region initialised itself on DOMContentLoaded.)
+	} catch (e) {
+		$('.error').show().text(e.message);
+	}
+
+	var $all = $('body, main');
+
+	$('.js-pause').on('click', function () {
+		$all.ripples('pause');
+		eachInstance(function (i) { i.pause(); });
+	});
+
+	$('.js-play').on('click', function () {
+		$all.ripples('play');
+		eachInstance(function (i) { i.play(); });
+	});
+
+	$('.js-drop').on('click', function () {
+		eachInstance(function (i) {
+			i.drop(Math.random() * i.cssWidth, Math.random() * i.cssHeight, 30, 0.12);
+		});
+	});
+
+	// Swapping the source at runtime, without recreating the instance.
+	var swapped = false;
+	$('.js-swap').on('click', function () {
+		var instance = Ripples.get(document.getElementById('url-region'));
+		if (!instance) return;
+		swapped = !swapped;
+		instance.setSource(swapped ? 'img/bg.jpg' : 'video/loop.webm');
+	});
+
+	$('.js-disable').on('click', function () {
+		$all.ripples('destroy');
+		eachInstance(function (i) { i.destroy(); });
 		$(this).hide();
 	});
 
-	$('.js-ripples-play').on('click', function() {
-		$('body, main').ripples('play');
-	});
+	function eachInstance (fn) {
+		$('.demo-region').each(function () {
+			var instance = Ripples.get(this);
+			if (instance) fn(instance);
+		});
+	}
 
-	$('.js-ripples-pause').on('click', function() {
-		$('body, main').ripples('pause');
-	});
-
-	// Automatic drops
-	setInterval(function() {
+	// Automatic drops on the panel.
+	setInterval(function () {
 		var $el = $('main');
-		var x = Math.random() * $el.outerWidth();
-		var y = Math.random() * $el.outerHeight();
-		var dropRadius = 20;
-		var strength = 0.04 + Math.random() * 0.04;
-
-		$el.ripples('drop', x, y, dropRadius, strength);
+		$el.ripples('drop',
+			Math.random() * $el.outerWidth(),
+			Math.random() * $el.outerHeight(),
+			20,
+			0.04 + Math.random() * 0.04);
 	}, 400);
 });
 </script>

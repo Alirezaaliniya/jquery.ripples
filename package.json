@@ -1,7 +1,7 @@
 {
   "name": "jquery.ripples",
-  "version": "0.6.3",
-  "description": "Add a water ripple effect to background images using WebGL.",
+  "version": "0.7.0",
+  "description": "Add a WebGL water ripple effect to background images, images and videos.",
   "keywords": [
     "jquery",
     "jquery-plugin",
@@ -9,12 +9,12 @@
     "ripples",
     "WebGL",
     "background",
+    "video",
     "effect"
   ],
   "scripts": {
     "build": "rollup -c build/rollup.config.js",
-    "build-min": "rollup -c build/rollup.config-min.js",
-    "version": "npm run build && npm run build-min && git add -A dist",
+    "version": "npm run build && git add -A dist",
     "postversion": "git push && git push --tags"
   },
   "homepage": "https://sirxemic.github.io/jquery.ripples/",
@@ -24,7 +24,20 @@
     "url": "https://sirxemic.com/",
     "email": "pimschreurs@gmail.com"
   },
+  "type": "module",
   "main": "dist/jquery.ripples.js",
+  "module": "dist/ripples.esm.js",
+  "browser": "dist/ripples.js",
+  "exports": {
+    ".": {
+      "import": "./dist/ripples.esm.js",
+      "default": "./dist/ripples.js"
+    },
+    "./jquery": {
+      "default": "./dist/jquery.ripples.js"
+    },
+    "./dist/*": "./dist/*"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/sirxemic/jquery.ripples.git"
@@ -32,15 +45,20 @@
   "peerDependencies": {
     "jquery": ">=1.7.0"
   },
+  "peerDependenciesMeta": {
+    "jquery": {
+      "optional": true
+    }
+  },
   "devDependencies": {
-    "rollup": "^0.45.1",
-    "rollup-plugin-license": "^0.6.0",
-    "rollup-plugin-uglify": "^2.0.1",
-    "jquery": ">=1.7.0"
+    "@rollup/plugin-terser": "^0.4.4",
+    "jquery": "^3.7.1",
+    "rollup": "^4.22.0"
   },
   "dependencies": {},
   "files": [
     "dist",
+    "src",
     "README.md"
   ]
 }
